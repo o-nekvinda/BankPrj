@@ -19,8 +19,6 @@ public class Customer {
     public Customer(String f, String l) {
         this.firstName = f;
         this.lastName = l;
-//        this.numbeOfAccounts = 0;
-//        this.accounts = new Account[999];
     }
 
     public String getFirstName() {

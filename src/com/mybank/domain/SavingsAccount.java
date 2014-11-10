@@ -17,10 +17,10 @@ public class SavingsAccount extends Account {
         super(initBalance);
         this.interestRate = interestRate;
     }
-    
+
     @Override
-    public void accumulateInterest(){
+    public void accumulateInterest() {
         this.balance = this.balance + (this.interestRate * this.balance);
-}
+    }
 
 }

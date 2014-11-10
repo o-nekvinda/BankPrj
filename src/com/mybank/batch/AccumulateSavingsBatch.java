@@ -9,7 +9,7 @@ import com.mybank.domain.*;
 
 /**
  *
- *  @author onekv_000
+ * @author onekv_000
  */
 public class AccumulateSavingsBatch {
 
