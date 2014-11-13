@@ -11,22 +11,26 @@ package com.mybank.domain;
  */
 public class Bank {
 
-    private Customer[] customers = new Customer[999];
-    private int numberOfCostumers;
+    private static Customer[] customers = new Customer[999];
+    private static int numberOfCostumers;
 
+//    static {
+//    
+//    }
+    
     public Bank() {
     }
 
-    public void addCustomer(String f, String l) {
+    public static void addCustomer(String f, String l) {
         customers[numberOfCostumers] = new Customer(f, l);
         numberOfCostumers++;
     }
 
-    public int getNumOfCustomers() {
+    public static int getNumOfCustomers() {
         return numberOfCostumers;
     }
 
-    public Customer getCustomer(int index) {
+    public static Customer getCustomer(int index) {
         return customers[index];
     }
 }
