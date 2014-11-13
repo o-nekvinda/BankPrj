@@ -11,7 +11,7 @@ package com.mybank.domain;
  */
 public class Bank {
 
-    private Customer[] customers = new Customer[999];;
+    private Customer[] customers = new Customer[999];
     private int numberOfCostumers;
 
     public Bank() {
