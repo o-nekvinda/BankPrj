@@ -16,21 +16,18 @@ public class Account {
         return balance;
     }
 
-    public boolean deposit(double amt) {
+    public void deposit(double amt)  {
         if (amt > 0) {
             this.balance = this.balance + amt;
-            return true;
         } else {
-            return false;
         }
     }
 
-    public boolean withdraw(double amt) {
+    public void withdraw(double amt) throws OverdraftException {
         if (this.balance - amt > 0 && amt > 0) {
             this.balance = this.balance - amt;
-            return true;
         } else {
-            return false;
+            throw new OverdraftException("Account.java OverdraftException!", Math.abs(this.balance - amt));
         }
 
     }
