@@ -31,6 +31,8 @@ public class DataSource {
          2. Properties
          3. Run
          4. Do Arguments napsat data\\test.dat
+         5. V "Main Class" by melo byt com.mybank.test.TestReport. To umozni spoustet TestReport.java pri spusteni projektu.
+         6. Spustit projekt pres F6 nebo pravy klik na projekt a RUN. (pravy klik na TestReport.java a RUN nebude fungovat spravne)
          */
 
         int numberofCustomers;// Pocet klientu v souboru (prvni cislo)
