@@ -20,7 +20,7 @@ public class TestBanking {
     // Test the checking account of Jane Simms (with overdraft protection)
     customer = Bank.getCustomer(0);
     account = customer.getAccount(1);
-    System.out.println("Customer [" + customer.getLastName()
+    System.out.println("Customer [" + customer.getSurName()
 		       + ", " + customer.getFirstName() + "]"
 		       + " has a checking balance of "
 		       + account.getBalance()
@@ -38,7 +38,7 @@ public class TestBanking {
       System.out.println("Exception: " + e1.getMessage()
 			 + "   Deficit: " + e1.getDeficit());
     } finally {
-      System.out.println("Customer [" + customer.getLastName()
+      System.out.println("Customer [" + customer.getSurName()
 			 + ", " + customer.getFirstName() + "]"
 			 + " has a checking balance of "
 			 + account.getBalance());
@@ -48,7 +48,7 @@ public class TestBanking {
     // Test the checking account of Owen Bryant (without overdraft protection)
     customer = Bank.getCustomer(1);
     account = customer.getAccount(0);
-    System.out.println("Customer [" + customer.getLastName()
+    System.out.println("Customer [" + customer.getSurName()
 		       + ", " + customer.getFirstName() + "]"
 		       + " has a savings balance of "
 		       + account.getBalance());
@@ -63,7 +63,7 @@ public class TestBanking {
       System.out.println("Exception: " + e1.getMessage()
 			 + "   Deficit: " + e1.getDeficit());
     } finally {
-      System.out.println("Customer [" + customer.getLastName()
+      System.out.println("Customer [" + customer.getSurName()
 			 + ", " + customer.getFirstName() + "]"
 			 + " has a savings balance of "
 			 + account.getBalance());

@@ -5,40 +5,38 @@
  */
 package com.mybank.domain;
 
-/**
- *
- * @author STUDENT-FES-EA03029
- */
+import java.util.ArrayList;
+import java.util.List;
+
 public class Customer {
 
+    private List<Account> accounts;
     private String firstName;
-    private String lastName;
-    private Account accounts[] = new Account[999];
-    private int numbeOfAccounts;
+    private String surName;
 
     public Customer(String f, String l) {
+        this.accounts = new ArrayList<>();
         this.firstName = f;
-        this.lastName = l;
+        this.surName = l;
+    }
+
+    public void addAccount(Account acct) {
+        accounts.add(acct);
+    }
+
+    public int getNumOfAccounts() {
+        return accounts.size();
+    }
+
+    public Account getAccount(int index) {
+        return this.accounts.get(index);
     }
 
     public String getFirstName() {
         return firstName;
     }
 
-    public String getLastName() {
-        return lastName;
-    }
-
-    public Account getAccount(int i) {
-        return this.accounts[i];
-    }
-
-    public void addAccount(Account acct) {
-        this.accounts[numbeOfAccounts] = acct;
-        numbeOfAccounts++;
-    }
-
-    public int getNumOfAccounts() {
-        return numbeOfAccounts;
+    public String getSurName() {
+        return surName;
     }
 }

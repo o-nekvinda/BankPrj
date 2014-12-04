@@ -32,7 +32,7 @@ public class CustomerReport {
             // Print the customer's name
             System.out.println();
             System.out.println("Customer: "
-                    + customer.getLastName() + ", "
+                    + customer.getSurName() + ", "
                     + customer.getFirstName());
 
             // For each account for this customer...
