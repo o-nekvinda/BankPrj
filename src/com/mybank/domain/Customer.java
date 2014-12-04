@@ -32,6 +32,8 @@ public class Customer {
         return this.accounts.get(index);
     }
 
+    // Chyba v UML "Using Collections to Represent Association"?
+    // UML neobsahuje metody getFirstName() a getSurName(), musi tam byt.
     public String getFirstName() {
         return firstName;
     }

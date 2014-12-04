@@ -26,7 +26,7 @@ public class Bank {
     }
 
     // Chyba v UML "Using Collections to Represent Association"?
-    // Musi byt static, v UML neni.
+    // getCustomer() musi byt static, v UML neni.
     public static Customer getCustomer(int index) {
         return customers.get(index);
     }
