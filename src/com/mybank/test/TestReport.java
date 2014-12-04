@@ -13,7 +13,7 @@ public class TestReport {
     public static void main(String[] args) {
         DataSource data = new DataSource("Data\\test.dat");
         data.loadData();
-        System.out.println("----");
+        System.out.println("Load completed!");
 
     // Retrieve the dataFilePath command-line argument
    /* if ( args.length != 1 ) {

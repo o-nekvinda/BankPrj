@@ -7,11 +7,11 @@ package com.mybank.data;
 
 import com.mybank.domain.Account;
 import com.mybank.domain.Bank;
+import com.mybank.domain.CheckingAccount;
+import com.mybank.domain.SavingsAccount;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -26,8 +26,8 @@ public class DataSource {
     }
 
     public void loadData() {
-        int klientId = 1;
-        Account acc;
+        int klientId = 0;
+        Account acc = null;
         String accType;
         int pocetUctu;
         String lastName;
@@ -42,7 +42,7 @@ public class DataSource {
             lastName = sc.next();
 
             Bank.addCustomer(firstName, lastName);
-
+            System.out.println("Vytvoren klient: " + firstName + " " + lastName);
             pocetUctu = sc.nextInt();
 
             for (int i = 0; i < pocetUctu - 0; i++) {
@@ -50,16 +50,19 @@ public class DataSource {
 
                 String zustatek = sc.next();
                 String sazba = sc.next();
-//                System.out.println(accType + " " + zustatek + " " + sazba);
                 if (accType.equalsIgnoreCase("s")) {
-//                    System.out.println("S");
+                    acc = new SavingsAccount(Double.parseDouble(zustatek), Double.parseDouble(sazba));
                 } else if (accType.equalsIgnoreCase("c")) {
-//                    System.out.println("C");
+                    acc = new CheckingAccount(Double.parseDouble(zustatek), Double.parseDouble(sazba));
                 }
+
+                if (acc != null) {
+                    Bank.getCustomer(klientId).addAccount(acc);
+                    System.out.println("Vytvoren ucet typu: " + accType + " se zustatkem: " + zustatek + "a 2param:" + sazba);
+                }
+                
             }
 
-//            acc = new Account
-//            Bank.getCustomer(klientId).addAccount(null);
         } catch (FileNotFoundException ex) {
         }
 
