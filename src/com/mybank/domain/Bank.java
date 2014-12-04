@@ -5,24 +5,19 @@
  */
 package com.mybank.domain;
 
-/**
- *
- * @author MSI
- */
+import java.util.ArrayList;
+import java.util.List;
+
 public class Bank {
 
-    private static Customer[] customers = new Customer[999];
+    private static List<Customer> customers = new ArrayList<>();
     private static int numberOfCostumers;
 
-//    static {
-//    
-//    }
-    public Bank() {
+    private Bank() {
     }
 
     public static void addCustomer(String f, String l) {
-//        System.out.println(f + " " + l);
-        customers[numberOfCostumers] = new Customer(f, l);
+        customers.add(new Customer(f, l));
         numberOfCostumers++;
     }
 
@@ -30,7 +25,9 @@ public class Bank {
         return numberOfCostumers;
     }
 
+    // Chyba v UML "Using Collections to Represent Association"?
+    // Musi byt static, v UML neni.
     public static Customer getCustomer(int index) {
-        return customers[index];
+        return customers.get(index);
     }
 }
