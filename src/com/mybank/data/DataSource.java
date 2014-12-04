@@ -25,7 +25,7 @@ public class DataSource {
         this.dataFile = new File(dataFilePath);
     }
 
-    public void loadData() {
+    public void loadData() throws FileNotFoundException {
         int klientId = 0;
         Account acc = null;
         String accType;
@@ -34,10 +34,10 @@ public class DataSource {
         String firstName;
         int pocetKlientu;
 
-        try {
-            Scanner sc = new Scanner(dataFile);
-            pocetKlientu = sc.nextInt();
+        Scanner sc = new Scanner(dataFile);
+        pocetKlientu = sc.nextInt();
 
+        while (klientId < pocetKlientu) {
             firstName = sc.next();
             lastName = sc.next();
 
@@ -60,10 +60,8 @@ public class DataSource {
                     Bank.getCustomer(klientId).addAccount(acc);
                     System.out.println("Vytvoren ucet typu: " + accType + " se zustatkem: " + zustatek + "a 2param:" + sazba);
                 }
-                
             }
-
-        } catch (FileNotFoundException ex) {
+            klientId++;
         }
 
     }

@@ -11,31 +11,32 @@ public class TestReport {
             = "USAGE: java com.mybank.test.TestReport <dataFilePath>";
 
     public static void main(String[] args) {
-        DataSource data = new DataSource("Data\\test.dat");
-        data.loadData();
-        System.out.println("Load completed!");
+//        DataSource data = new DataSource("Data\\test.dat");
+//        data.loadData();
+//        System.out.println("Load completed!");
 
-    // Retrieve the dataFilePath command-line argument
-   /* if ( args.length != 1 ) {
-         System.out.println(USAGE);
-         } else {
-         String dataFilePath = args[0];
+        // Retrieve the dataFilePath command-line argument
+        if (args.length != 1) {
+            System.out.println(USAGE);
+            
+        } else {
+            String dataFilePath = args[0];
 
-         try {
-         System.out.println("Reading data file: " + dataFilePath);
-         // Create the data source and load the Bank data
-         DataSource dataSource = new DataSource(dataFilePath);
-         dataSource.loadData();
+            try {
+                System.out.println("Reading data file: " + dataFilePath);
+                // Create the data source and load the Bank data
+                DataSource dataSource = new DataSource(dataFilePath);
+                dataSource.loadData();
 
-         // Run the customer report
-         CustomerReport report = new CustomerReport();
-         report.generateReport();
+                // Run the customer report
+                CustomerReport report = new CustomerReport();
+                report.generateReport();
 
-         } catch (IOException ioe) {
-         System.out.println("Could not load the data file.");
-         System.out.println(ioe.getMessage());
-         ioe.printStackTrace(System.err);
-         }
-         }*/
+            } catch (IOException ioe) {
+                System.out.println("Could not load the data file.");
+                System.out.println(ioe.getMessage());
+                ioe.printStackTrace(System.err);
+            }
+        }
     }
 }
