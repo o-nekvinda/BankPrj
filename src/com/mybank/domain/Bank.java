@@ -17,11 +17,11 @@ public class Bank {
 //    static {
 //    
 //    }
-    
     public Bank() {
     }
 
     public static void addCustomer(String f, String l) {
+//        System.out.println(f + " " + l);
         customers[numberOfCostumers] = new Customer(f, l);
         numberOfCostumers++;
     }
