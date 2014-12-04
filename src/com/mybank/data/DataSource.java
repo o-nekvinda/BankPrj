@@ -26,6 +26,13 @@ public class DataSource {
     }
 
     public void loadData() throws FileNotFoundException {
+        /*Cesta k souboru se nastavuje v:
+         1. Pravym kliknout na projekt
+         2. Properties
+         3. Run
+         4. Do Arguments napsat data\\test.dat
+         */
+
         int numberofCustomers;// Pocet klientu v souboru (prvni cislo)
         int numberOdAccounts; // Pocet uctu klienta
         String accountType;
