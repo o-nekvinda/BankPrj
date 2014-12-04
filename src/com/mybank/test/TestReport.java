@@ -11,14 +11,10 @@ public class TestReport {
             = "USAGE: java com.mybank.test.TestReport <dataFilePath>";
 
     public static void main(String[] args) {
-//        DataSource data = new DataSource("Data\\test.dat");
-//        data.loadData();
-//        System.out.println("Load completed!");
-
         // Retrieve the dataFilePath command-line argument
         if (args.length != 1) {
             System.out.println(USAGE);
-            
+
         } else {
             String dataFilePath = args[0];
 

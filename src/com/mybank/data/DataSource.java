@@ -26,42 +26,36 @@ public class DataSource {
     }
 
     public void loadData() throws FileNotFoundException {
-        int klientId = 0;
+        int numberofCustomers;// Pocet klientu v souboru (prvni cislo)
+        int numberOdAccounts; // Pocet uctu klienta
+        String accountType;
+        int customerId = 0;
         Account acc = null;
-        String accType;
-        int pocetUctu;
-        String lastName;
-        String firstName;
-        int pocetKlientu;
 
         Scanner sc = new Scanner(dataFile);
-        pocetKlientu = sc.nextInt();
+        numberofCustomers = sc.nextInt();
 
-        while (klientId < pocetKlientu) {
-            firstName = sc.next();
-            lastName = sc.next();
+        while (customerId < numberofCustomers) { // Opakuje pro stanovey pocet klientu
 
-            Bank.addCustomer(firstName, lastName);
-            System.out.println("Vytvoren klient: " + firstName + " " + lastName);
-            pocetUctu = sc.nextInt();
+            Bank.addCustomer(sc.next(), sc.next()); // Nacteni druheho a tretho zaznamu v souboru (jmeno, prijmeni)
+            numberOdAccounts = sc.nextInt(); // Nacteni dalsiho zaznamu (pocet uctu klienta)
 
-            for (int i = 0; i < pocetUctu - 0; i++) {
-                accType = sc.next();
+            for (int i = 0; i < numberOdAccounts - 0; i++) { // Opakuje pro vsechny ucty klienta
+                accountType = sc.next(); // Typ uctu S nebo C
 
-                String zustatek = sc.next();
-                String sazba = sc.next();
-                if (accType.equalsIgnoreCase("s")) {
-                    acc = new SavingsAccount(Double.parseDouble(zustatek), Double.parseDouble(sazba));
-                } else if (accType.equalsIgnoreCase("c")) {
-                    acc = new CheckingAccount(Double.parseDouble(zustatek), Double.parseDouble(sazba));
+                if (accountType.equalsIgnoreCase("s")) { // Pokud je accountType "S"
+                    // Vytvoreni noveho uctu. 
+                    // sc.nextDouble() nefunguje, proto se pouzije sc.next() a double se parsuje.
+                    acc = new SavingsAccount(Double.parseDouble(sc.next()), Double.parseDouble(sc.next()));
+                } else if (accountType.equalsIgnoreCase("c")) { // Pokud je accountType "C"
+                    acc = new CheckingAccount(Double.parseDouble(sc.next()), Double.parseDouble(sc.next()));
                 }
 
                 if (acc != null) {
-                    Bank.getCustomer(klientId).addAccount(acc);
-                    System.out.println("Vytvoren ucet typu: " + accType + " se zustatkem: " + zustatek + "a 2param:" + sazba);
+                    Bank.getCustomer(customerId).addAccount(acc);
                 }
             }
-            klientId++;
+            customerId++; // A jdeme na dalsiho klienta...
         }
 
     }
