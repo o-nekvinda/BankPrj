@@ -26,17 +26,9 @@ public class DataSource {
     }
 
     public void loadData() throws FileNotFoundException {
-        /*Cesta k souboru se nastavuje v:
-         1. Pravym kliknout na projekt
-         2. Properties
-         3. Run
-         4. Do Arguments napsat data\\test.dat
-         5. V "Main Class" by melo byt com.mybank.test.TestReport. To umozni spoustet TestReport.java pri spusteni projektu.
-         6. Spustit projekt pres F6 nebo pravy klik na projekt a RUN. (pravy klik na TestReport.java a RUN nebude fungovat spravne)
-         */
 
-        int numberofCustomers;// Pocet klientu v souboru (prvni cislo)
-        int numberOdAccounts; // Pocet uctu klienta
+        int numberofCustomers;
+        int numberOdAccounts;
         String accountType;
         int customerId = 0;
         Account acc = null;
@@ -44,19 +36,18 @@ public class DataSource {
         Scanner sc = new Scanner(dataFile);
         numberofCustomers = sc.nextInt();
 
-        while (customerId < numberofCustomers) { // Opakuje pro stanovey pocet klientu
+        while (customerId < numberofCustomers) {
 
-            Bank.addCustomer(sc.next(), sc.next()); // Nacteni druheho a tretho zaznamu v souboru (jmeno, prijmeni)
-            numberOdAccounts = sc.nextInt(); // Nacteni dalsiho zaznamu (pocet uctu klienta)
+            Bank.addCustomer(sc.next(), sc.next());
+            numberOdAccounts = sc.nextInt();
 
-            for (int i = 0; i < numberOdAccounts - 0; i++) { // Opakuje pro vsechny ucty klienta
-                accountType = sc.next(); // Typ uctu S nebo C
+            for (int i = 0; i < numberOdAccounts - 0; i++) {
+                accountType = sc.next();
 
-                if (accountType.equalsIgnoreCase("s")) { // Pokud je accountType "S"
-                    // Vytvoreni noveho uctu. 
-                    // sc.nextDouble() nefunguje, proto se pouzije sc.next() a double se parsuje.
+                if (accountType.equalsIgnoreCase("s")) {
+
                     acc = new SavingsAccount(Double.parseDouble(sc.next()), Double.parseDouble(sc.next()));
-                } else if (accountType.equalsIgnoreCase("c")) { // Pokud je accountType "C"
+                } else if (accountType.equalsIgnoreCase("c")) {
                     acc = new CheckingAccount(Double.parseDouble(sc.next()), Double.parseDouble(sc.next()));
                 }
 
@@ -64,9 +55,7 @@ public class DataSource {
                     Bank.getCustomer(customerId).addAccount(acc);
                 }
             }
-            customerId++; // A jdeme na dalsiho klienta...
+            customerId++;
         }
-
     }
-
 }
