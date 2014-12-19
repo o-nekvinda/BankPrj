@@ -76,7 +76,6 @@ public class ATMClient {
             //outputTextArea.append("Choose an action.\n"); 
         }
         ATMClient.ATMState = ATMState;
-        System.out.println(ATMState);
     }
 
     public static EATMState getATMState() {
@@ -285,7 +284,6 @@ public class ATMClient {
                     txtOutput.append("Your deposit of " + dataEntryInt + " was successful.\n");
                 } else if (!btnMakeWithdrawal.isEnabled()) {
                     try {
-                        System.out.println(dataEntryInt);
                         getSelectedCustomer().getAccount(getSelectedAccID()).withdraw(dataEntryInt);
                         txtOutput.append("Your withdrawal of " + dataEntryInt + " was successful.\n");
                     } catch (OverdraftException ex) {
