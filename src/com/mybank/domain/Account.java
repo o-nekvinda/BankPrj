@@ -24,7 +24,7 @@ public class Account {
     }
 
     public void withdraw(double amt) throws OverdraftException {
-        if (this.balance - amt > 0 && amt > 0) {
+        if (this.balance - amt >= 0 && amt > 0) {
             this.balance = this.balance - amt;
         } else {
             throw new OverdraftException("Account.java OverdraftException!", Math.abs(this.balance - amt));

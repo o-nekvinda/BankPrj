@@ -24,7 +24,7 @@ public class CheckingAccount extends Account {
 
     @Override
     public void withdraw(double amt) throws OverdraftException {
-        if (amt > 0 && this.balance - amt > 0 - this.overdraftAmount) {
+        if (amt > 0 && this.balance - amt >= 0 - this.overdraftAmount) {
             if (this.balance - amt < 0) {
                 this.overdraftAmount += this.balance - amt;;
                 this.balance = 0;
