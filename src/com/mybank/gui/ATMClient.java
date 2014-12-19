@@ -3,7 +3,7 @@ package com.mybank.gui;
 import com.mybank.data.*;
 import com.mybank.domain.Bank;
 import com.mybank.domain.Customer;
-import com.mybank.domain.EATMStatus;
+import com.mybank.domain.EATMState;
 import com.mybank.domain.OverdraftException;
 import java.io.*;
 import java.awt.*;
@@ -61,25 +61,25 @@ public class ATMClient {
 
     private static Customer selectedCustomer;
     private static int selectedAccID;
-    private static EATMStatus statusATM;
+    private static EATMState ATMState;
 
-    public static void setStatusATM(EATMStatus statusATM) {
-        if (statusATM == ATMClient.statusATM) {
+    public static void setATMState(EATMState ATMState) {
+        if (ATMState == ATMClient.ATMState) {
             return;
         }
-        if (statusATM == EATMStatus.ENTER_AMOUNT) {
+        if (ATMState == EATMState.ENTER_AMOUNT) {
             outputTextArea.append("Enter an amount.\n");
-        } else if (statusATM == EATMStatus.ENTER_ACC_ID) {
+        } else if (ATMState == EATMState.ENTER_ACC_ID) {
             outputTextArea.append("Enter account ID.\n");
-        } else if (statusATM == EATMStatus.CHOOSE_ACTION) {
+        } else if (ATMState == EATMState.CHOOSE_ACTION) {
             //outputTextArea.append("Choose an action.\n"); 
         }
-        ATMClient.statusATM = statusATM;
-        System.out.println(statusATM);
+        ATMClient.ATMState = ATMState;
+        System.out.println(ATMState);
     }
 
-    public static EATMStatus getStatusATM() {
-        return statusATM;
+    public static EATMState getATMState() {
+        return ATMState;
     }
 
     public static Customer getSelectedCustomer() {
@@ -97,7 +97,7 @@ public class ATMClient {
         makeDeposit.setEnabled(true);
         makeWithdrawal.setEnabled(true);
         dataEntry.setText("");
-        setStatusATM(EATMStatus.CHOOSE_ACTION);
+        setATMState(EATMState.CHOOSE_ACTION);
 
     }
 
@@ -200,7 +200,7 @@ public class ATMClient {
         dataEntry.setText("");
 //        selectedCustomer = null;
 //        selectedAccID = 0;
-        setStatusATM(EATMStatus.CHOOSE_CUSTOMER);
+        setATMState(EATMState.CHOOSE_CUSTOMER);
     }
 
     private static class accAction implements ActionListener {
@@ -224,14 +224,14 @@ public class ATMClient {
             if (!displayAccBalance.isEnabled()) {
                 for (int i = 0; i < selectedCustomer.getNumOfAccounts(); i++) {
                     outputTextArea.append("Your account (ID: " + i + ") balance is: " + selectedCustomer.getAccount(i).getBalance() + "\n");
-                    setStatusATM(EATMStatus.CHOOSE_ACTION);
+                    setATMState(EATMState.CHOOSE_ACTION);
                 }
             } else {
                 if (selectedCustomer.getNumOfAccounts() > 1) {
-                    setStatusATM(EATMStatus.ENTER_ACC_ID);
+                    setATMState(EATMState.ENTER_ACC_ID);
                 } else {
                     setSelectedAccID(0);
-                    setStatusATM(EATMStatus.ENTER_AMOUNT);
+                    setATMState(EATMState.ENTER_AMOUNT);
                 }
             }
         }
@@ -264,7 +264,7 @@ public class ATMClient {
 
             int dataEntryInt = Integer.parseInt(dataEntry.getText());
 
-            if (getStatusATM() == EATMStatus.CHOOSE_CUSTOMER) {
+            if (getATMState() == EATMState.CHOOSE_CUSTOMER) {
 
                 if (dataEntryInt > Bank.getNumOfCustomers()) {
                     outputTextArea.append("Customer ID " + dataEntryInt + " was not found!\n");
@@ -272,16 +272,16 @@ public class ATMClient {
                     setSelectedCustomer(Bank.getCustomer(dataEntryInt));
                 }
 
-            } else if (getStatusATM() == EATMStatus.ENTER_ACC_ID) {
+            } else if (getATMState() == EATMState.ENTER_ACC_ID) {
                 if (dataEntryInt > getSelectedCustomer().getNumOfAccounts() - 1) {
                     outputTextArea.append("ACC ID " + dataEntryInt + " was not found! Max. ACC ID is " + (getSelectedCustomer().getNumOfAccounts() - 1) + "\n");
                 } else {
                     setSelectedAccID(dataEntryInt);
                     outputTextArea.append("Selected ACC ID: " + getSelectedAccID() + ". Current balance: " + getSelectedCustomer().getAccount(getSelectedAccID()).getBalance() + "\n");
-                    setStatusATM(EATMStatus.ENTER_AMOUNT);
+                    setATMState(EATMState.ENTER_AMOUNT);
                 }
 
-            } else if (getStatusATM() == EATMStatus.ENTER_AMOUNT) {
+            } else if (getATMState() == EATMState.ENTER_AMOUNT) {
                 if (!makeDeposit.isEnabled()) {
                     getSelectedCustomer().getAccount(getSelectedAccID()).deposit(dataEntryInt);
                     outputTextArea.append("Your deposit of " + dataEntryInt + " was successful.\n");

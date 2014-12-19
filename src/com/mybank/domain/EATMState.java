@@ -9,7 +9,7 @@ package com.mybank.domain;
  *
  * @author onekv_000
  */
-public enum EATMStatus {
+public enum EATMState {
 
     CHOOSE_CUSTOMER,
     CHOOSE_ACTION,
