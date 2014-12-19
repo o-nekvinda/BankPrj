@@ -3,13 +3,11 @@ package com.mybank.gui;
 import com.mybank.data.*;
 import com.mybank.domain.Bank;
 import com.mybank.domain.Customer;
-import com.mybank.domain.EATMState;
 import com.mybank.domain.OverdraftException;
 import java.io.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -50,27 +48,30 @@ public class ATMClient {
     }
 
     // PLACE YOUR GUI CODE HERE
-    private static JFrame f;
-    private static JPanel left, leftTop, keyPadPane, center;
-    private static JTextArea outputTextArea;
-    private static JScrollPane outputScrollPane;
-    private static JButton displayAccBalance, makeDeposit, makeWithdrawal;
-    private static JTextField dataEntry, message;
-    private static JButton[] keyPadBtn;
+    private static JFrame frame;
+    private static JPanel pnlLeft, pnlLeftTop, pnlKeys, pnlCenter;
+    private static JTextField txtDataEntry, txtMessage;
+    private static JScrollPane scrolPane;
+    private static JTextArea txtOutput;
+    private static JButton btnGetAccBalance, btnMakeDeposit, btnMakeWithdrawal;
+    private static JButton[] btnKeyPad;
     private static final GridBagConstraints c = new GridBagConstraints(); // Pravidla pro usporadani component v GridBagLayout.
 
     private static Customer selectedCustomer;
     private static int selectedAccID;
     private static EATMState ATMState;
 
+    /**
+     * Nastaveni stavu bankomatu Vypsani zpravy pri zmene stavu
+     */
     public static void setATMState(EATMState ATMState) {
         if (ATMState == ATMClient.ATMState) {
             return;
         }
         if (ATMState == EATMState.ENTER_AMOUNT) {
-            outputTextArea.append("Enter an amount.\n");
+            txtOutput.append("Enter an amount.\n");
         } else if (ATMState == EATMState.ENTER_ACC_ID) {
-            outputTextArea.append("Enter account ID.\n");
+            txtOutput.append("Enter account ID.\n");
         } else if (ATMState == EATMState.CHOOSE_ACTION) {
             //outputTextArea.append("Choose an action.\n"); 
         }
@@ -90,15 +91,28 @@ public class ATMClient {
         return selectedAccID;
     }
 
+    /**
+     * setEnabled pro 3 action tlacitka
+     *
+     * @param state
+     */
+    public static void setActionBtnsEnabled(boolean state) {
+        btnGetAccBalance.setEnabled(state);
+        btnMakeDeposit.setEnabled(state);
+        btnMakeWithdrawal.setEnabled(state);
+    }
+
+    public static void setActionBtnEnabled(JButton btn) {
+        setActionBtnsEnabled(true);
+        btn.setEnabled(false);
+    }
+
     public static void setSelectedCustomer(Customer selectedCustomer) {
         ATMClient.selectedCustomer = selectedCustomer;
-        outputTextArea.append("Welcome " + selectedCustomer.getFirstName() + " " + selectedCustomer.getSurName() + ".\n");
-        displayAccBalance.setEnabled(true);
-        makeDeposit.setEnabled(true);
-        makeWithdrawal.setEnabled(true);
-        dataEntry.setText("");
+        txtOutput.append("Welcome " + selectedCustomer.getFirstName() + " " + selectedCustomer.getSurName() + ".\n");
+        txtDataEntry.setText("");
+        setActionBtnsEnabled(true);
         setATMState(EATMState.CHOOSE_ACTION);
-
     }
 
     public static void setSelectedAccID(int selectedAccID) {
@@ -106,201 +120,185 @@ public class ATMClient {
     }
 
     private void launchFrame() {
-        f = new JFrame("First Java Bank ATM");
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame = new JFrame("First Java Bank ATM");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        left = new JPanel();
-        left.setLayout(new GridBagLayout());
+        // Left
+        pnlLeft = new JPanel();
+        pnlLeft.setLayout(new GridBagLayout());
 
-        leftTop = new JPanel(new GridLayout(3, 1)); // 3radky, 1sloupec
-        displayAccBalance = new JButton("Display account balance");
-        displayAccBalance.addActionListener(new accAction());
-        makeDeposit = new JButton("Make a deposit");
-        makeDeposit.addActionListener(new accAction());
-        makeWithdrawal = new JButton("Make a withdrawal");
-        makeWithdrawal.addActionListener(new accAction());
+        // Left top, 3 action buttons
+        pnlLeftTop = new JPanel(new GridLayout(3, 1));
+        btnGetAccBalance = new JButton("Display account balance");
+        btnGetAccBalance.addActionListener(new ActionListener() {
 
-        leftTop.add(displayAccBalance);
-        leftTop.add(makeDeposit);
-        leftTop.add(makeWithdrawal);
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for (int i = 0; i < selectedCustomer.getNumOfAccounts(); i++) {
+                    txtOutput.append("Your account (ID: " + i + ") balance is: " + selectedCustomer.getAccount(i).getBalance() + "\n");
+                    setATMState(EATMState.CHOOSE_ACTION);
+                    setActionBtnEnabled(btnGetAccBalance);
+                }
+            }
+        });
+        btnMakeDeposit = new JButton("Make a deposit");
+        btnMakeDeposit.addActionListener(new ActionActionButton());
+        btnMakeWithdrawal = new JButton("Make a withdrawal");
+        btnMakeWithdrawal.addActionListener(new ActionActionButton());
 
-        dataEntry = new JTextField(10);
-        dataEntry.setEditable(false);
+        pnlLeftTop.add(btnGetAccBalance);
+        pnlLeftTop.add(btnMakeDeposit);
+        pnlLeftTop.add(btnMakeWithdrawal);
 
-        keyPadPane = new JPanel(new GridLayout(4, 3)); // 
-        keyPadBtn = new JButton[12];
-        // Vytvoreni 12-ti tlacitek.
-        for (int i = 0; i < keyPadBtn.length; i++) {
+        // Data entry
+        txtDataEntry = new JTextField(10);
+        txtDataEntry.setEditable(false);
+
+        // Key panel
+        pnlKeys = new JPanel(new GridLayout(4, 3));
+        btnKeyPad = new JButton[12];
+        for (int i = 0; i < btnKeyPad.length; i++) {
             String name;
-            keyPadBtn[i] = new JButton();
-            switch (i) {
-                case 9: // 9 tlacitko ma popis "0".
-                    name = "0";
-                    break;
-                case 10:
-                    name = "";
-                    break;
-                case 11: // 9 tlacitko ma popis "Enter".
-                    name = "Enter";
-                    break;
-                default:
-                    name = "" + (i + 1); // Popis tlacitek 1-9
-            }
-            keyPadBtn[i].setName(name);
-            keyPadBtn[i].setText(name);
+            btnKeyPad[i] = new JButton();
 
-            keyPadBtn[i].setPreferredSize(new Dimension(60, 30));
-            keyPadBtn[i].setMargin(new Insets(0, 0, 0, 0)); // Nastaveni odsazeni popisu tlacitka od jeho hrany (jinak se tam nevejde "Enter")
-            if (i == 11) {
-                keyPadBtn[i].addActionListener(new KeyPanelEnterAction());
+            if (i == 9) {
+                name = "0";
+            } else if (i == 10) {
+                name = "";
+            } else if (i == 11) {
+                name = "ENTER";
             } else {
-                keyPadBtn[i].addActionListener(new KeyPanelAction());
+                name = "" + (i + 1);
             }
-            keyPadPane.add(keyPadBtn[i]);
-
+            btnKeyPad[i].setText(name);
+            //btnKeyPad[i].setPreferredSize(new Dimension(60, 30));
+            //btnKeyPad[i].setMargin(new Insets(0, 0, 0, 0)); // Nastaveni odsazeni popisu tlacitka od jeho hrany (jinak se tam nevejde "Enter")
+            if (i == 11) {
+                btnKeyPad[i].addActionListener(new ActionEnterPressed());
+            } else {
+                btnKeyPad[i].addActionListener(new ActionNumberPressed());
+            }
+            pnlKeys.add(btnKeyPad[i]);
         }
 
-        center = new JPanel();
-        center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
-        outputTextArea = new JTextArea(10, 75);
-        outputTextArea.setEditable(false);
-        // TextArea automaticke scrollovani http://tips4java.wordpress.com/2008/10/22/text-area-scrolling/
-        DefaultCaret caret = (DefaultCaret) outputTextArea.getCaret();
+        pnlCenter = new JPanel();
+//        pnlCenter.setLayout(new BoxLayout(pnlCenter, BoxLayout.Y_AXIS));
+        pnlCenter.setLayout(new BorderLayout());
+        txtOutput = new JTextArea(10, 75 / 2);
+        txtOutput.setEditable(false);
+        // TextArea automatic scroll http://tips4java.wordpress.com/2008/10/22/text-area-scrolling/
+        DefaultCaret caret = (DefaultCaret) txtOutput.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
-        outputScrollPane = new JScrollPane(outputTextArea);
-        outputScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        message = new JTextField(75);
-        center.add(outputScrollPane);
-        center.add(message);
+        scrolPane = new JScrollPane(txtOutput);
+        scrolPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        txtMessage = new JTextField(75 / 2);
+        pnlCenter.add(scrolPane, BorderLayout.CENTER);
+        pnlCenter.add(txtMessage, BorderLayout.SOUTH);
 
-        c.gridx = 0; // Pozice component
+        c.gridx = 0;
         c.gridy = 0;
-        c.fill = GridBagConstraints.HORIZONTAL; // Roztahnuti horizontalne
-        left.add(leftTop, c);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        pnlLeft.add(pnlLeftTop, c);
 
-        c.gridy = 1; // Posunuti o jednu pozici dolu
-        left.add(dataEntry, c);
+        c.gridy = 1;
+        pnlLeft.add(txtDataEntry, c);
 
         c.gridy = 2;
-        left.add(keyPadPane, c);
+        pnlLeft.add(pnlKeys, c);
 
-        f.add(left, BorderLayout.WEST);
-        f.add(center, BorderLayout.CENTER);
+        frame.add(pnlLeft, BorderLayout.WEST);
+        frame.add(pnlCenter, BorderLayout.CENTER);
+
         startNewSession();
-        f.pack();
-        f.setVisible(true);
+        frame.pack();
+        frame.setVisible(true);
     }
 
     public static void startNewSession() {
-        displayAccBalance.setEnabled(false);
-        makeDeposit.setEnabled(false);
-        makeWithdrawal.setEnabled(false);
-        outputTextArea.append("Enter your customer ID into the key pad and press the ENTER button.\n");
-        dataEntry.setText("");
-//        selectedCustomer = null;
-//        selectedAccID = 0;
+        setActionBtnsEnabled(false);
+        txtOutput.append("Enter your customer ID into the key pad and press the ENTER button.\n");
+        txtDataEntry.setText("");
         setATMState(EATMState.CHOOSE_CUSTOMER);
     }
 
-    private static class accAction implements ActionListener {
-
-        public accAction() {
-        }
+    private static class ActionActionButton implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (!displayAccBalance.isEnabled()) {
-                displayAccBalance.setEnabled(true);
-            }
-            if (!makeDeposit.isEnabled()) {
-                makeDeposit.setEnabled(true);
-            }
-            if (!makeWithdrawal.isEnabled()) {
-                makeWithdrawal.setEnabled(true);
-            }
-            JButton btn = (JButton) e.getSource();
-            btn.setEnabled(false);
-            if (!displayAccBalance.isEnabled()) {
-                for (int i = 0; i < selectedCustomer.getNumOfAccounts(); i++) {
-                    outputTextArea.append("Your account (ID: " + i + ") balance is: " + selectedCustomer.getAccount(i).getBalance() + "\n");
-                    setATMState(EATMState.CHOOSE_ACTION);
-                }
+            if (selectedCustomer.getNumOfAccounts() > 1) {
+                setATMState(EATMState.ENTER_ACC_ID);
             } else {
-                if (selectedCustomer.getNumOfAccounts() > 1) {
-                    setATMState(EATMState.ENTER_ACC_ID);
-                } else {
-                    setSelectedAccID(0);
-                    setATMState(EATMState.ENTER_AMOUNT);
-                }
+                setSelectedAccID(0);
+                setATMState(EATMState.ENTER_AMOUNT);
             }
+            setActionBtnEnabled((JButton) e.getSource());
         }
     }
 
-    class KeyPanelAction implements ActionListener {
+    class ActionNumberPressed implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
             String buttonName = e.getActionCommand();
             if (buttonName.equalsIgnoreCase("")) {
-                dataEntry.setText("");
+                txtDataEntry.setText("");
                 return;
             }
-            dataEntry.setText(dataEntry.getText() + buttonName);
+            txtDataEntry.setText(txtDataEntry.getText() + buttonName);
         }
-
     }
 
-    class KeyPanelEnterAction implements ActionListener {
+    class ActionEnterPressed implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
 
-            if (dataEntry.getText().isEmpty()) {
-                outputTextArea.append("Invalid input: You must enter a number!\n");
-                dataEntry.setText("");
+            if (txtDataEntry.getText().isEmpty()) {
+                txtOutput.append("Invalid input: You must enter a number!\n");
+                txtDataEntry.setText("");
                 return;
             }
 
-            int dataEntryInt = Integer.parseInt(dataEntry.getText());
+            int dataEntryInt = Integer.parseInt(txtDataEntry.getText());
 
             if (getATMState() == EATMState.CHOOSE_CUSTOMER) {
 
                 if (dataEntryInt > Bank.getNumOfCustomers()) {
-                    outputTextArea.append("Customer ID " + dataEntryInt + " was not found!\n");
+                    txtOutput.append("Customer ID " + dataEntryInt + " was not found!\n");
                 } else {
                     setSelectedCustomer(Bank.getCustomer(dataEntryInt));
                 }
 
             } else if (getATMState() == EATMState.ENTER_ACC_ID) {
                 if (dataEntryInt > getSelectedCustomer().getNumOfAccounts() - 1) {
-                    outputTextArea.append("ACC ID " + dataEntryInt + " was not found! Max. ACC ID is " + (getSelectedCustomer().getNumOfAccounts() - 1) + "\n");
+                    txtOutput.append("ACC ID " + dataEntryInt + " was not found! Max. ACC ID is " + (getSelectedCustomer().getNumOfAccounts() - 1) + "\n");
                 } else {
                     setSelectedAccID(dataEntryInt);
-                    outputTextArea.append("Selected ACC ID: " + getSelectedAccID() + ". Current balance: " + getSelectedCustomer().getAccount(getSelectedAccID()).getBalance() + "\n");
+                    txtOutput.append("Selected ACC ID: " + getSelectedAccID() + ". Current balance: " + getSelectedCustomer().getAccount(getSelectedAccID()).getBalance() + "\n");
                     setATMState(EATMState.ENTER_AMOUNT);
                 }
 
             } else if (getATMState() == EATMState.ENTER_AMOUNT) {
-                if (!makeDeposit.isEnabled()) {
+                if (!btnMakeDeposit.isEnabled()) {
                     getSelectedCustomer().getAccount(getSelectedAccID()).deposit(dataEntryInt);
-                    outputTextArea.append("Your deposit of " + dataEntryInt + " was successful.\n");
-                } else if (!makeWithdrawal.isEnabled()) {
+                    txtOutput.append("Your deposit of " + dataEntryInt + " was successful.\n");
+                } else if (!btnMakeWithdrawal.isEnabled()) {
                     try {
                         System.out.println(dataEntryInt);
                         getSelectedCustomer().getAccount(getSelectedAccID()).withdraw(dataEntryInt);
-                        outputTextArea.append("Your withdrawal of " + dataEntryInt + " was successful.\n");
+                        txtOutput.append("Your withdrawal of " + dataEntryInt + " was successful.\n");
                     } catch (OverdraftException ex) {
-                        outputTextArea.append("Your withdrawal of " + dataEntryInt + " was unsuccessful! Deficit: " + ex.getDeficit() + ". Repeat.\n");
-                        dataEntry.setText("");
+                        txtOutput.append("Your withdrawal of " + dataEntryInt + " was unsuccessful! Deficit: " + ex.getDeficit() + ". Repeat.\n");
+                        txtDataEntry.setText("");
                         return;
                     }
                 }
-                outputTextArea.append("Your new account balance is: " + getSelectedCustomer().getAccount(getSelectedAccID()).getBalance() + "\n\n");
+                txtOutput.append("Your new account balance is: " + getSelectedCustomer().getAccount(getSelectedAccID()).getBalance() + "\n\n");
                 startNewSession();
 
             }
-            dataEntry.setText("");
+            txtDataEntry.setText("");
 
         }
 
