@@ -48,24 +48,26 @@ public class ATMClient {
     }
 
     // PLACE YOUR GUI CODE HERE
-    private static JFrame frame;
-    private static JPanel pnlLeft, pnlLeftTop, pnlKeys, pnlCenter;
-    private static JTextField txtDataEntry, txtMessage;
-    private static JScrollPane scrolPane;
-    private static JTextArea txtOutput;
-    private static JButton btnGetAccBalance, btnMakeDeposit, btnMakeWithdrawal;
-    private static JButton[] btnKeyPad;
     private static final GridBagConstraints c = new GridBagConstraints(); // Pravidla pro usporadani component v GridBagLayout.
+    private JFrame frame;
+    private JPanel pnlLeft, pnlLeftTop, pnlKeys, pnlCenter;
+    private JTextField txtDataEntry, txtMessage;
+    private JScrollPane scrolPane;
+    private JTextArea txtOutput;
+    private JButton btnGetAccBalance, btnMakeDeposit, btnMakeWithdrawal;
+    private JButton[] btnKeyPad;
 
-    private static Customer selectedCustomer;
-    private static int selectedAccID;
-    private static EATMState ATMState;
+    private Customer selectedCustomer;
+    private int selectedAccID;
+    private EATMState ATMState;
 
     /**
      * Nastaveni stavu bankomatu Vypsani zpravy pri zmene stavu
+     *
+     * @param ATMState
      */
-    public static void setATMState(EATMState ATMState) {
-        if (ATMState == ATMClient.ATMState) {
+    public void setATMState(EATMState ATMState) {
+        if (ATMState == this.ATMState) {
             return;
         }
         if (ATMState == EATMState.ENTER_AMOUNT) {
@@ -75,18 +77,18 @@ public class ATMClient {
         } else if (ATMState == EATMState.CHOOSE_ACTION) {
             //outputTextArea.append("Choose an action.\n"); 
         }
-        ATMClient.ATMState = ATMState;
+        this.ATMState = ATMState;
     }
 
-    public static EATMState getATMState() {
+    public EATMState getATMState() {
         return ATMState;
     }
 
-    public static Customer getSelectedCustomer() {
+    public Customer getSelectedCustomer() {
         return selectedCustomer;
     }
 
-    public static int getSelectedAccID() {
+    public int getSelectedAccID() {
         return selectedAccID;
     }
 
@@ -95,27 +97,27 @@ public class ATMClient {
      *
      * @param state
      */
-    public static void setActionBtnsEnabled(boolean state) {
+    public void setActionBtnsEnabled(boolean state) {
         btnGetAccBalance.setEnabled(state);
         btnMakeDeposit.setEnabled(state);
         btnMakeWithdrawal.setEnabled(state);
     }
 
-    public static void setActionBtnEnabled(JButton btn) {
+    public void setActionBtnEnabled(JButton btn) {
         setActionBtnsEnabled(true);
         btn.setEnabled(false);
     }
 
-    public static void setSelectedCustomer(Customer selectedCustomer) {
-        ATMClient.selectedCustomer = selectedCustomer;
+    public void setSelectedCustomer(Customer selectedCustomer) {
+        this.selectedCustomer = selectedCustomer;
         txtOutput.append("Welcome " + selectedCustomer.getFirstName() + " " + selectedCustomer.getSurName() + ".\n");
         txtDataEntry.setText("");
         setActionBtnsEnabled(true);
         setATMState(EATMState.CHOOSE_ACTION);
     }
 
-    public static void setSelectedAccID(int selectedAccID) {
-        ATMClient.selectedAccID = selectedAccID;
+    public void setSelectedAccID(int selectedAccID) {
+        this.selectedAccID = selectedAccID;
     }
 
     private void launchFrame() {
@@ -214,14 +216,14 @@ public class ATMClient {
         frame.setVisible(true);
     }
 
-    public static void startNewSession() {
+    public void startNewSession() {
         setActionBtnsEnabled(false);
         txtOutput.append("Enter your customer ID into the key pad and press the ENTER button.\n");
         txtDataEntry.setText("");
         setATMState(EATMState.CHOOSE_CUSTOMER);
     }
 
-    private static class ActionActionButton implements ActionListener {
+    private class ActionActionButton implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
