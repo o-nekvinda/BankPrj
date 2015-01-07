@@ -41,11 +41,10 @@ public class ATMClient {
     }
 
     // PLACE YOUR GUI CODE HERE
-    private static final GridBagConstraints c = new GridBagConstraints(); // Pravidla pro usporadani component v GridBagLayout.
     private JFrame frame;
-    private JPanel pnlLeft, pnlLeftTop, pnlKeys, pnlCenter;
+    private JPanel pnlLeft, pnlActionBtns, pnlKeys, pnlCenter;
     private JTextField txtDataEntry, txtMessage;
-    private JScrollPane scrolPane;
+    private JScrollPane scrollPane;
     private JTextArea txtOutput;
     private JButton btnGetAccBalance, btnMakeDeposit, btnMakeWithdrawal;
     private JButton[] btnKeyPad;
@@ -92,26 +91,151 @@ public class ATMClient {
 
         }
         this.ATMState = ATMState;
+//        frame.setTitle("First Java Bank ATM - " + ATMState);
     }
 
-    private void setKeyPadBtnsEnabled(boolean state) {
-        if (btnKeyPad[0].isEnabled() == state) {
-            return;
+    /**
+     * Vytvoreni a spusteni ATM GUI.
+     */
+    public void launchFrame() {
+        frame = new JFrame("First Java Bank ATM");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Left JPanel
+        pnlLeft = new JPanel();
+        pnlLeft.setLayout(new GridBagLayout());
+
+        // Left top, 3 action buttons
+        pnlActionBtns = new JPanel(new GridLayout(3, 1));
+        btnGetAccBalance = new JButton("Display account balance");
+        btnGetAccBalance.addActionListener(new ActionListener() {
+            // Vypis informaci o uctech customera
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (selectedCustomer.getNumOfAccounts() == 1) {
+                    // Output: "Your CheckingAccount balance is: 200.0"
+                    txtOutput.append("Your " + selectedCustomer.getAccount(0).getClass().getSimpleName()
+                            + " balance is: " + selectedCustomer.getAccount(0).getBalance() + "\n");
+                } else { // Multiple accounts
+                    for (int i = 0; i < selectedCustomer.getNumOfAccounts(); i++) {
+                        Account acc = selectedCustomer.getAccount(i);
+                        //txtOutput.append("Your account (ID: " + i + ") balance is: " + acc.getBalance() + "\n");
+
+                        /* Output:
+                         "Account ID: 0, Balance: 500.0, Type: SavingsAccount"
+                         "Account ID: 1, Balance: 200.0, Type: CheckingAccount"
+                         */
+                        txtOutput.append("Account ID: " + i);
+                        txtOutput.append(", Balance: " + acc.getBalance());
+                        txtOutput.append(", Type: " + acc.getClass().getSimpleName());
+                        txtOutput.append("\n");
+                    }
+                }
+                setAtmState(EATMState.CHOOSE_ACTION);
+                setActionBtnEnabled(btnGetAccBalance);
+            }
+        });
+        btnMakeDeposit = new JButton("Make a deposit");
+        btnMakeWithdrawal = new JButton("Make a withdrawal");
+        ActionActionButton a = new ActionActionButton();
+        btnMakeDeposit.addActionListener(a);
+        btnMakeWithdrawal.addActionListener(a);
+
+        pnlActionBtns.add(btnGetAccBalance);
+        pnlActionBtns.add(btnMakeDeposit);
+        pnlActionBtns.add(btnMakeWithdrawal);
+
+        // Data entry
+        txtDataEntry = new JTextField(10);
+        txtDataEntry.setEditable(false);
+
+        // Key panel
+        pnlKeys = new JPanel(new GridLayout(4, 3));
+        btnKeyPad = new JButton[12];
+        for (int i = 0; i < btnKeyPad.length; i++) {
+            String name;
+            btnKeyPad[i] = new JButton();
+
+            if (i == 9) {
+                // 10. tlacitko je "0"
+                name = "0";
+            } else if (i == 10) {
+                // 11. tlacitko je bez jmena
+                name = "";
+            } else if (i == 11) {
+                // Posledni, 12. tlacitko je "ENTER"
+                name = "ENTER";
+            } else {
+                // Tlacitka 1-9
+                name = "" + (i + 1);
+            }
+            btnKeyPad[i].setText(name);
+            if (i == 11) { // ENTER
+                btnKeyPad[i].addActionListener(new ActionEnterPressed());
+            } else { // Numbers and a button with an empty name 
+                btnKeyPad[i].addActionListener(new ActionNumberPressed());
+            }
+            pnlKeys.add(btnKeyPad[i]);
         }
 
-        for (JButton btnKeyPad1 : btnKeyPad) {
-            btnKeyPad1.setEnabled(state);
+        pnlCenter = new JPanel();
+        pnlCenter.setLayout(new BorderLayout());
+        txtOutput = new JTextArea(10, 75 / 2);
+        txtOutput.setEditable(false);
+
+        //Automaticke scrollovani txtOutput http://tips4java.wordpress.com/2008/10/22/text-area-scrolling/
+        DefaultCaret caret = (DefaultCaret) txtOutput.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+
+        scrollPane = new JScrollPane(txtOutput);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        txtMessage = new JTextField(75 / 2);
+        pnlCenter.add(scrollPane, BorderLayout.CENTER);
+        pnlCenter.add(txtMessage, BorderLayout.SOUTH);
+
+        GridBagConstraints c = new GridBagConstraints(); // Pravidla pro usporadani component v GridBagLayout.
+        c.gridx = 0;
+        c.gridy = 0;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        pnlLeft.add(pnlActionBtns, c);
+
+        c.gridy = 1;
+        pnlLeft.add(txtDataEntry, c);
+
+        c.gridy = 2;
+        pnlLeft.add(pnlKeys, c);
+
+        frame.add(pnlLeft, BorderLayout.WEST);
+        frame.add(pnlCenter, BorderLayout.CENTER);
+
+        setAtmState(EATMState.CHOOSE_CUSTOMER);
+        frame.pack();
+        frame.setResizable(false);
+        frame.setVisible(true);
+    }
+
+    /**
+     * Zapne/vypne tlacitka na key padu
+     *
+     * @param state
+     */
+    private void setKeyPadBtnsEnabled(boolean state) {
+        if (btnKeyPad[0].isEnabled() ^ state) { // Pokud se stav tlacitek a param lisi.
+            for (JButton btnKeyPad1 : btnKeyPad) {
+                btnKeyPad1.setEnabled(state);
+            }
         }
     }
 
     /**
-     * Probehne pri nastaveni stavu ATM na CHOOSE_CUSTOMER.
+     * Spusteni nove session ATM (novy customer). Probehne pri nastaveni stavu
+     * ATM na CHOOSE_CUSTOMER.
      */
     private void startNewSession() {
-//        txtOutput.setText("");
+        //txtOutput.setText("");
         txtOutput.append("Enter your customer ID into the key pad and press the ENTER button.\n");
         setActionBtnsEnabled(false);
-        setTxtDataEntryEmpty();
+        clearTxtDataEntry();
     }
 
     private EATMState getATMState() {
@@ -138,8 +262,8 @@ public class ATMClient {
     }
 
     /**
-     * Vypnuti vsech tlacitek a nasledne zapnuti konkretniho(vybraneho) action
-     * tlacitka.
+     * Vypnuti vsech tlacitek a nasledne zapnuti konkretniho(param) tlacitka.
+     * Slouzi k odliseni volby, ktera je vybrana.
      */
     private void setActionBtnEnabled(JButton btn) {
         setActionBtnsEnabled(true);
@@ -154,7 +278,7 @@ public class ATMClient {
     private void setSelectedCustomer(Customer selectedCustomer) {
         this.selectedCustomer = selectedCustomer;
         txtOutput.append("Welcome " + selectedCustomer.getFirstName() + " " + selectedCustomer.getSurName() + ".\n");
-        setTxtDataEntryEmpty();
+        clearTxtDataEntry();
         setActionBtnsEnabled(true);
         setAtmState(EATMState.CHOOSE_ACTION);
     }
@@ -162,7 +286,7 @@ public class ATMClient {
     /**
      * Smaze text z txtDataEntry.
      */
-    private void setTxtDataEntryEmpty() {
+    private void clearTxtDataEntry() {
         txtDataEntry.setText("");
     }
 
@@ -174,106 +298,6 @@ public class ATMClient {
      */
     private void setSelectedAccID(int selectedAccID) {
         this.selectedAccID = selectedAccID;
-    }
-
-    private void launchFrame() {
-        frame = new JFrame("First Java Bank ATM");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
-
-        // Left JPanel
-        pnlLeft = new JPanel();
-        pnlLeft.setLayout(new GridBagLayout());
-
-        // Left top, 3 action buttons
-        pnlLeftTop = new JPanel(new GridLayout(3, 1));
-        btnGetAccBalance = new JButton("Display account balance");
-        btnGetAccBalance.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                for (int i = 0; i < selectedCustomer.getNumOfAccounts(); i++) {
-                    Account acc = selectedCustomer.getAccount(i);
-                    //txtOutput.append("Your account (ID: " + i + ") balance is: " + acc.getBalance() + "\n");
-                    txtOutput.append("Account ID: " + i);
-                    txtOutput.append(", Balance: " + acc.getBalance());
-                    txtOutput.append(", Type: " + acc.getClass().getSimpleName());
-                    txtOutput.append("\n");
-                    setAtmState(EATMState.CHOOSE_ACTION);
-                    setActionBtnEnabled(btnGetAccBalance);
-                }
-            }
-        });
-        btnMakeDeposit = new JButton("Make a deposit");
-        btnMakeDeposit.addActionListener(new ActionActionButton());
-        btnMakeWithdrawal = new JButton("Make a withdrawal");
-        btnMakeWithdrawal.addActionListener(new ActionActionButton());
-
-        pnlLeftTop.add(btnGetAccBalance);
-        pnlLeftTop.add(btnMakeDeposit);
-        pnlLeftTop.add(btnMakeWithdrawal);
-
-        // Data entry
-        txtDataEntry = new JTextField(10);
-        txtDataEntry.setEditable(false);
-
-        // Key panel
-        pnlKeys = new JPanel(new GridLayout(4, 3));
-        btnKeyPad = new JButton[12];
-        for (int i = 0; i < btnKeyPad.length; i++) {
-            String name;
-            btnKeyPad[i] = new JButton();
-
-            if (i == 9) {
-                name = "0";
-            } else if (i == 10) {
-                name = "";
-            } else if (i == 11) {
-                name = "ENTER";
-            } else {
-                name = "" + (i + 1);
-            }
-            btnKeyPad[i].setText(name);
-            if (i == 11) {
-                btnKeyPad[i].addActionListener(new ActionEnterPressed());
-            } else {
-                btnKeyPad[i].addActionListener(new ActionNumberPressed());
-            }
-            pnlKeys.add(btnKeyPad[i]);
-        }
-
-        pnlCenter = new JPanel();
-        pnlCenter.setLayout(new BorderLayout());
-        txtOutput = new JTextArea(10, 75 / 2);
-        txtOutput.setEditable(false);
-
-        //Automaticke scrollovani txtOutput http://tips4java.wordpress.com/2008/10/22/text-area-scrolling/
-        DefaultCaret caret = (DefaultCaret) txtOutput.getCaret();
-        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-
-        scrolPane = new JScrollPane(txtOutput);
-        scrolPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        txtMessage = new JTextField(75 / 2);
-        pnlCenter.add(scrolPane, BorderLayout.CENTER);
-        pnlCenter.add(txtMessage, BorderLayout.SOUTH);
-
-        c.gridx = 0;
-        c.gridy = 0;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        pnlLeft.add(pnlLeftTop, c);
-
-        c.gridy = 1;
-        pnlLeft.add(txtDataEntry, c);
-
-        c.gridy = 2;
-        pnlLeft.add(pnlKeys, c);
-
-        frame.add(pnlLeft, BorderLayout.WEST);
-        frame.add(pnlCenter, BorderLayout.CENTER);
-
-        setAtmState(EATMState.CHOOSE_CUSTOMER);
-        frame.pack();
-        frame.setVisible(true);
     }
 
     /**
@@ -304,10 +328,13 @@ public class ATMClient {
         public void actionPerformed(ActionEvent e) {
             String buttonName = e.getActionCommand(); // Ziskani "jmena tlacitka" (1-9 a prazdne jmeno "" u 10. tlacitka)
             if (buttonName.equalsIgnoreCase("")) { // Tlacitko bez jmena slouzi k vymazani textu
-                setTxtDataEntryEmpty();
+                clearTxtDataEntry();
                 return;
             }
+
+//            if (txtDataEntry.getText().length() < 10) {
             txtDataEntry.setText(txtDataEntry.getText() + buttonName); // Do txtDataEntry se pripise hodnota stistknuteho tlacitka
+//            }
         }
     }
 
@@ -328,17 +355,12 @@ public class ATMClient {
 
             if (getATMState() == EATMState.CHOOSE_CUSTOMER) {
                 chooseCustomer((int) dataEntryInt);
-
             } else if (getATMState() == EATMState.ENTER_ACC_ID) {
                 enterAccId((int) dataEntryInt);
-
             } else if (getATMState() == EATMState.ENTER_AMOUNT) {
-//                if (enterAmount(dataEntryInt)) {
-//                    return;
-//                }
                 enterAmount(dataEntryInt);
             }
-            setTxtDataEntryEmpty();
+            clearTxtDataEntry();
         }
 
         /**
@@ -349,25 +371,27 @@ public class ATMClient {
          */
         private void enterAmount(double dataEntryInt) {
 
-            // Vybrane tlacitko pro vyber/vlozeni penez maji setEnabled(false). To vyuzivam k rozpoznani jakou operaci chce customer provest.
+            // Vybrane tlacitko pro vyber/vlozeni penez maji setEnabled(false). To se vyuziva k rozpoznani jakou operaci chce customer provest.
             if (!btnMakeDeposit.isEnabled()) {
-                // if btnMakeDeposit is disabled
+                // if btnMakeDeposit is disabled - make a deposit
                 getSelectedCustomer().getAccount(getSelectedAccID()).deposit(dataEntryInt); // Vlozeni penez na ucet
                 txtOutput.append("Your deposit of " + dataEntryInt + " was successful.\n");
             } else if (!btnMakeWithdrawal.isEnabled()) {
+                // if btnMakeWithdrawal is disabled - make a withdrawal
                 try {
-                    // Testovani uspesne provedeneho vyberu penez
                     getSelectedCustomer().getAccount(getSelectedAccID()).withdraw(dataEntryInt);
                     txtOutput.append("Your withdrawal of " + dataEntryInt + " was successful.\n");
-                } catch (OverdraftException ex) {
-                    txtOutput.append("Your withdrawal of " + dataEntryInt + " was unsuccessful! Deficit: " + ex.getDeficit() + ".\n\n");
-                    setTxtDataEntryEmpty();
+                } catch (OverdraftException ex) { //  Neuspesny vyber penez
+                    txtOutput.append("!!!  Your withdrawal of " + dataEntryInt + " was unsuccessful! Deficit: " + ex.getDeficit() + ".   !!!\n\n");
+                    clearTxtDataEntry();
+                    // Nastaveni pocatecniho stavu ATM - vyber customera.
                     setAtmState(EATMState.CHOOSE_CUSTOMER);
                     return;
                 }
             }
             // Nastane pouze po uspesnem provedeni vyberu/vlozeni penez
             txtOutput.append("Your new account balance is: " + getSelectedCustomer().getAccount(getSelectedAccID()).getBalance() + "\n\n");
+            // Nastaveni pocatecniho stavu ATM - vyber customera.
             setAtmState(EATMState.CHOOSE_CUSTOMER);
         }
 

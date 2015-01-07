@@ -7,11 +7,11 @@ package com.mybank.gui;
 public enum EATMState {
 
     /**
-     * Spusteni ATM - zadani ID customera.
+     * Stav spusteni ATM - zadani ID customera.
      */
     CHOOSE_CUSTOMER,
     /**
-     * Vyber z action tlacitek.
+     * Stav ve kterem se vyckava na vyber jednoho z action tlacitek.
      */
     CHOOSE_ACTION,
     /**
